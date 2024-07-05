@@ -36,7 +36,7 @@ Set up the API keys:
 
 Run the chatbot: 
 
-        python simran.py
+        python gen_ai.py
 
 Interact with the chatbot:
 
