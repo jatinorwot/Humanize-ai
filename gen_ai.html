@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Simran</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .chat-container {
+            max-width: 500px;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-color: #fff5e6;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        .chat-header {
+            background-color: #075e54;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .profile-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-right: 10px;
+        }
+        .header-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .online-status {
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .message {
+            max-width: 80%;
+            margin-bottom: 20px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            position: relative;
+            clear: both;
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            float: right;
+        }
+        .bot-message {
+            background-color: white;
+            float: left;
+        }
+        .message-content {
+            margin-bottom: 15px;
+        }
+        .message-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 0.7em;
+            color: #999;
+        }
+        .message-time {
+            margin-right: 5px;
+        }
+        .message-status {
+            color: #999;
+        }
+        .message-status.read {
+            color: #4fc3f7;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #f0f0f0;
+            align-items: center;
+        }
+        #selectedImagePreview {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        #userInput {
+            flex-grow: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        #sendButton, #uploadButton {
+            background-color: #075e54;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        #uploadButton {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #uploadButton input[type="file"] {
+            display: none;
+        }
+        #uploadButton label {
+            cursor: pointer;
+        }
+        .upload-icon {
+            width: 20px;
+            height: 20px;
+        }
+        .typing-indicator {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+        .typing-indicator span {
+            animation: blink 1.4s infinite both;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fas1.ftcdn.net%2Fv2%2Fjpg%2F06%2F46%2F00%2F00%2F1000_F_646000029_JTtTlIY4MgOhl6U36hjDFsRjzMkRw9d1.jpg&f=1&nofb=1&ipt=14b86dc8c2bf21146dab6b9b6c1de7985054a73dd38b78a51e2ae23dc60276a6&ipo=images"  alt="Simran" class="profile-photo">
+            <div class="header-info">
+                <h2>Simran🎀</h2>
+                <span class="online-status">online</span>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+            Typing<span>.</span><span>.</span><span>.</span>
+        </div>
+        <div id="selectedImagePreview" style="display: none;">
+            <img id="previewImage" style="max-width: 100%; border-radius: 10px;">
+        </div>
+        <div id="errorMessage" style="color: red; padding: 10px; display: none;">Please enter a text message to send with the image.</div>
+
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type a message...">
+            <button id="sendButton">Send</button>
+            <div id="uploadButton">
+                <label for="fileInput">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                    </svg>
+                </label>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+        </div>
+    </div>
+    <footer style="text-align: center; margin-top: 60px;">
+        <a href="https://www.instagram.com/maijatinhun/" target="_blank" style="margin-left: 10px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="36" height="36">
+        </a>
+        <a href="https://www.linkedin.com/in/jatint007" target="_blank" style="margin-left: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="#0077B5">
+                <path d="M22.23 0H1.77C.8 0 0 .8 0 1.77v20.45C0 23.2.8 24 1.77 24h20.45C23.2 24 24 23.2 24 22.23V1.77C24 .8 23.2 0 22.23 0zM7.09 20.45H3.55V9h3.55v11.45zM5.32 7.48a2.06 2.06 0 01-2.06-2.06 2.06 2.06 0 112.06 2.06zm15.14 12.97h-3.54v-5.53c0-1.32-.03-3.03-1.84-3.03-1.84 0-2.12 1.44-2.12 2.93v5.63H9.45V9h3.4v1.57h.05c.47-.89 1.6-1.84 3.28-1.84 3.51 0 4.16 2.31 4.16 5.32v6.4h-.02z"/>
+            </svg>
+        </a>
+        <br>
+        Handcrafted with love❤️ by 
+        <a href="https://sites.google.com/ds.study.iitm.ac.in/jatin7/">Jatin</a>
+        
+    </footer>
+    
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const fileInput = document.getElementById('fileInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const onlineStatus = document.querySelector('.online-status');
+        const selectedImagePreview = document.getElementById('selectedImagePreview');
+        const previewImage = document.getElementById('previewImage');
+        let imageData = null;
+
+        function addMessage(content, isUser, isHTML = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            if (isHTML) {
+                contentDiv.innerHTML = content;
+            } else {
+                contentDiv.textContent = content;
+            }
+            messageDiv.appendChild(contentDiv);
+            
+            const footerDiv = document.createElement('div');
+            footerDiv.classList.add('message-footer');
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.classList.add('message-time');
+            timeSpan.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            footerDiv.appendChild(timeSpan);
+
+            if (isUser) {
+                const statusSpan = document.createElement('span');
+                statusSpan.classList.add('message-status');
+                statusSpan.textContent = '✓';
+                footerDiv.appendChild(statusSpan);
+
+                setTimeout(() => {
+                    statusSpan.classList.add('read');
+                    statusSpan.textContent = '✓✓';
+                }, 2000);
+            }
+            
+            messageDiv.appendChild(footerDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function sendMessage() {
+    const message = userInput.value.trim();
+    const errorMessage = document.getElementById('errorMessage');
+
+    if ((message && imageData) || (message && !imageData)) {
+        errorMessage.style.display = 'none'; // Hide error message if validation passes
+        let messageContent = '';
+        if (imageData) {
+            messageContent += `<img src="${imageData}" style="max-width: 100%; border-radius: 10px;">`;
+        }
+        if (message) {
+            messageContent += `<p>${message}</p>`;
+        }
+        addMessage(messageContent, true, true);
+        userInput.value = '';
+        showTypingIndicator();
+
+        const payload = {
+            user_input: message,
+            image: imageData
+        };
+
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => {
+            setTimeout(() => {
+                hideTypingIndicator();
+                addMessage(data.response, false);
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            setTimeout(() => {
+                hideTypingIndicator();
+                addMessage('Sorry, there was an error processing your message.', false);
+            }, 1000);
+        });
+
+        // Reset imageData and hide preview after sending
+        imageData = null;
+        selectedImagePreview.style.display = 'none';
+    } else if (!message && imageData) {
+        errorMessage.style.display = 'block'; // Show error message if only image is sent
+    }
+}
+
+sendButton.addEventListener('click', sendMessage);
+userInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+fileInput.addEventListener('change', function() {
+    const file = fileInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            imageData = event.target.result;
+            previewImage.src = imageData;
+            selectedImagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Show online status after 2 seconds
+setTimeout(() => {
+    onlineStatus.style.opacity = '1';
+}, 2000);
+
+// Initial message
+setTimeout(() => {
+    addMessage("Hey, mera naam Simran hai🎀🎀, Apka naam kya hai?😜", false);
+}, 1000);
+
+    </script>
+</body>
+</html>
